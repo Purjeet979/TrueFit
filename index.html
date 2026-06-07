@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TrueFit AI — Recruiter Intelligence Platform</title>
+<meta name="description" content="Browser-native AI recruiter intelligence platform. Zero APIs, full RAG pipeline, 5-dimensional candidate scoring — all running locally.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Serif+Display:ital@0;1&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- Modular CSS Stylesheets -->
+<link rel="stylesheet" href="css/variables.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+<!-- HEADER -->
+<header id="app-header">
+  <a href="#" class="header-logo" id="header-logo">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <path d="M12 2L2 7l10 5 10-5-10-5z" fill="#7C6DFA" opacity="0.8"/>
+      <path d="M2 17l10 5 10-5" stroke="#7C6DFA" stroke-width="2" fill="none"/>
+      <path d="M2 12l10 5 10-5" stroke="#A594FF" stroke-width="2" fill="none"/>
+    </svg>
+    TrueFit AI
+  </a>
+  <div class="engine-status">
+    <div class="status-dot" id="status-dot"></div>
+    <span id="engine-label">Edge AI Engine Ready</span>
+  </div>
+</header>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-chip">Recruiter Intelligence</div>
+  <h1>Discover talent<br>your ATS missed.</h1>
+  <p class="hero-sub">5-dimensional AI scoring. Structured narratives. Zero API calls. Everything runs on your device.</p>
+  <div class="pipeline-bar" id="pipeline-bar">
+    <div class="pipeline-step" data-stage="parse"><span class="step-label">NLP Parse</span></div>
+    <div class="pipeline-arrow"></div>
+    <div class="pipeline-step" data-stage="vectorise"><span class="step-label">TF-IDF</span></div>
+    <div class="pipeline-arrow"></div>
+    <div class="pipeline-step" data-stage="search"><span class="step-label">Cosine Search</span></div>
+    <div class="pipeline-arrow"></div>
+    <div class="pipeline-step" data-stage="rerank"><span class="step-label">Re-Rank</span></div>
+    <div class="pipeline-arrow"></div>
+    <div class="pipeline-step" data-stage="narrate"><span class="step-label">Narrate</span></div>
+  </div>
+</section>
+
+<!-- MAIN GRID -->
+<main id="main">
+
+  <!-- LEFT PANEL -->
+  <aside class="left-panel">
+
+    <!-- JD Input -->
+    <div class="panel-card">
+      <div class="panel-title">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Job Description
+      </div>
+      <div class="preset-grid" id="preset-grid"></div>
+      <textarea id="jd-input" placeholder="Paste your job description here, or select a preset above…" spellcheck="false"></textarea>
+    </div>
+
+    <!-- Hard Filters -->
+    <div class="panel-card">
+      <div class="panel-title">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+        Hard Filters
+      </div>
+      <div class="filter-row">
+        <span class="filter-label">Min Exp</span>
+        <input type="number" id="filter-exp" class="filter-input" value="0" min="0" max="30" step="0.5">
+        <span style="font-size:11px;color:var(--text3)">yrs</span>
+      </div>
+      <div class="filter-row">
+        <span class="filter-label">Location</span>
+        <select id="filter-location" class="filter-select">
+          <option value="">Any</option>
+        </select>
+      </div>
+      <div class="filter-row">
+        <span class="filter-label">Work Mode</span>
+        <select id="filter-workmode" class="filter-select">
+          <option value="">Any</option>
+          <option value="remote">Remote</option>
+          <option value="hybrid">Hybrid</option>
+          <option value="onsite">Onsite</option>
+          <option value="flexible">Flexible</option>
+        </select>
+      </div>
+      <div class="toggle-row">
+        <span class="filter-label">Open to Work only</span>
+        <div class="toggle-switch" id="filter-otw" tabindex="0" role="switch" aria-checked="false"></div>
+      </div>
+    </div>
+
+    <!-- Weight Sliders -->
+    <div class="panel-card">
+      <div class="panel-title">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/></svg>
+        Scoring Weights
+      </div>
+      <div id="weight-sliders"></div>
+    </div>
+
+    <!-- Search Button -->
+    <button id="search-btn">
+      <span id="search-btn-text">⚡ Find Best Candidates</span>
+    </button>
+    <div class="progress-container" id="progress-container">
+      <div class="progress-fill" id="progress-fill"></div>
+    </div>
+
+  </aside>
+
+  <!-- RIGHT PANEL -->
+  <section class="right-panel">
+
+    <!-- Stats -->
+    <div class="stats-row" id="stats-row">
+      <div class="stat-card"><div class="stat-value" id="stat-scanned">—</div><div class="stat-label">Scanned</div></div>
+      <div class="stat-card"><div class="stat-value" id="stat-shortlisted">—</div><div class="stat-label">Shortlisted</div></div>
+      <div class="stat-card"><div class="stat-value" id="stat-topscore">—</div><div class="stat-label">Top Score</div></div>
+      <div class="stat-card"><div class="stat-value" id="stat-time">—</div><div class="stat-label">Pipeline</div></div>
+    </div>
+
+    <!-- JD Insights Card -->
+    <div class="panel-card" id="jd-insights-card" style="display:none; margin-bottom: 0px;">
+      <div class="panel-title" style="margin-bottom: 12px; color: var(--accent2);">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        AI Job Description Analysis
+      </div>
+      <div id="jd-insights-content" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+        <!-- Dynamically populated -->
+      </div>
+    </div>
+
+    <!-- Sort Controls -->
+    <div class="sort-bar" id="sort-bar">
+      <span class="sort-label">Sort by</span>
+      <button class="sort-btn active" data-sort="overall">Overall</button>
+      <button class="sort-btn" data-sort="semantic">Semantic Fit</button>
+      <button class="sort-btn" data-sort="receptivity">Receptivity</button>
+      <button class="sort-btn" data-sort="trajectory">Career Trajectory</button>
+    </div>
+
+    <!-- Candidate List -->
+    <div class="candidate-list" id="candidate-list">
+      <div class="empty-state" id="empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <h3>Ready to discover talent</h3>
+        <p>Select a job description preset or paste your own, then click "Find Best Candidates" to run the AI pipeline.</p>
+      </div>
+    </div>
+
+  </section>
+
+</main>
+
+<!-- Entry Point Modular JavaScript -->
+<script type="module" src="js/app.js"></script>
+
+</body>
+</html>
