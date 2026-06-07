@@ -13,6 +13,7 @@ analyze_dataset*.js
 test*.js
 test*.mjs
 test.html
+debug.html
 
 # Nested Raw Data Folders
 [PUB]*/*
