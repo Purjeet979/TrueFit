@@ -1,0 +1,49 @@
+@media (max-width: 900px) {
+  #main {
+    grid-template-columns: 1fr;
+  }
+  .left-panel {
+    position: static;
+    max-height: none;
+  }
+  .stats-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .card-layer2 {
+    grid-template-columns: 1fr;
+  }
+  .pipeline-bar {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .pipeline-arrow { display: none; }
+  .stats-row {
+    grid-template-columns: 1fr;
+  }
+  .preset-grid {
+    grid-template-columns: 1fr;
+  }
+  .card-layer1 {
+    flex-wrap: wrap;
+  }
+}
+
+/* Scrollbar customizations */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text3); }
+
+/* Accessibility focus styles */
+*:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
