@@ -1,0 +1,88 @@
+# Redrob Hackathon — Submission Metadata
+# TrueFit — Intelligent Candidate Discovery & Ranking
+
+# ============================================================================
+# Team identity
+# ============================================================================
+team_name: "HaXker"
+
+primary_contact:
+  name: "Purjeet"
+  email: "parthshahu9506@gmail.com"
+  phone: "+91-XXXXXXXXXX"
+
+team_members:
+  - name: "Purjeet"
+    email: "parthshahu9506@gmail.com"
+    role: "Solo — Full Stack + ML Engineering"
+
+# ============================================================================
+# Code and reproducibility
+# ============================================================================
+github_repo: "https://github.com/Purjeet979/TrueFit"
+
+# ============================================================================
+# COMPONENT 3: Sandbox Demo Link (MANDATORY)
+# Provide a link to your working sandbox.
+# Recommended: HuggingFace Spaces, Streamlit Cloud, Google Colab, or Replit.
+# IMPORTANT: Submissions without a working sandbox link will be disqualified
+# at Stage 1.
+# ============================================================================
+sandbox_link: "https://truefit-ranker.streamlit.app/"
+# Note: The browser-based UI serves as a sandbox — run via python -m http.server 8080
+
+reproduce_command: "python rank.py --candidates ./candidates.jsonl --out ./HaXker.csv"
+
+# ============================================================================
+# Compute environment
+# ============================================================================
+compute:
+  platform: "Windows PC"
+  cpu_cores: 8
+  ram_gb: 16
+  python_version: "3.11"
+  os: "Windows"
+  uses_gpu_for_inference: false
+  has_network_during_ranking: false
+  pre_computation_required: false
+  pre_computation_time_minutes: 0
+
+# ============================================================================
+# AI tools declaration
+# ============================================================================
+ai_tools_used:
+  - "Claude"
+  - "ChatGPT/Codex"
+  - "Gemini"
+
+ai_usage_summary: |
+  Used Claude, ChatGPT/Codex, and Gemini for architecture discussion, code review, and debugging.
+  No candidate data was fed to any LLM. All ranking logic is deterministic
+  and rule-based. The scoring engine uses Scikit-Learn for TF-IDF 
+  and multi-signal heuristic scoring — zero LLM API calls.
+
+# ============================================================================
+# Approach summary
+# ============================================================================
+methodology_summary: |
+  7-stage pipeline processing 100K candidates in ~120s on CPU. Stage 1-2: load
+  and hard-filter (experience, technical relevance). Stage 3: honeypot detection
+  using 10 independent signals (expert-with-zero-duration, title-skill mismatch,
+  impossible tenure, impossible progression, etc.). Stage 4: TF-IDF cosine similarity using JD-vocabulary-
+  only vectorization via Scikit-Learn. Stage 5: 5-dimensional composite scoring — Role Fit (30%),
+  Skills Depth (25%), Career Quality (20%), Behavioral Signals (15%), Cultural
+  Alignment (10%). Key innovations: consulting-firm-entire-career penalty, recent-only-AI penalty, 
+  keyword-stuffer detection, hidden gem detection for pre-LLM experience, 
+  production experience text analysis, TF-IDF global multiplier, and log-scaled behavioral signal normalization.
+  Engine: Python, Scikit-Learn, NumPy.
+
+# ============================================================================
+# Declarations
+# ============================================================================
+declarations:
+  read_submission_spec: true
+  code_is_original_work: true
+  no_collusion: true
+  honeypot_check_done: true
+  reproduction_tested: true
+  local_submission_validator_added: true
