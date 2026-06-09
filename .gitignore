@@ -1,0 +1,33 @@
+# Hackathon data files
+*.jsonl
+*.csv
+
+# Documentation and Requirements
+*.docx
+*.pdf
+DESIGN*.md
+REQUIREMENTS*.md
+
+# Test and Analysis Scripts
+analyze_dataset*.js
+test*.js
+test*.mjs
+test.html
+debug.html
+
+# Nested Raw Data Folders
+[PUB]*/*
+__MACOSX/
+India_runs_data_and_ai_challenge/
+
+# Node modules / System files
+node_modules/
+.DS_Store
+
+# Scripts
+git_push.ps1
+
+# Python
+__pycache__/
+docs.txt
+sample_candidates.json
