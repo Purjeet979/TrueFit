@@ -40,7 +40,7 @@ The JD explicitly warns: *"The right answer is not 'find candidates whose skills
                                       ▼
                     ┌─────────────────────────────┐
                     │  Stage 3: Honeypot Detection│
-                    │  • 10 Independent Signals  │
+                    │  • 10 Independent Signals   │
                     │  • Keyword Stuffer Detection│
                     │  • Impossible Profiles      │
                     └─────────────────────────────┘
@@ -56,13 +56,13 @@ The JD explicitly warns: *"The right answer is not 'find candidates whose skills
                                       ▼
         ┌─────────────────────────────────────────────────────────┐
         │  Stage 5: 5-Dimensional Multi-Signal Scoring            │
-        │  ┌─────────────────────────────────────────────────┐   │
-        │  │ • Role & Title Fit (30%)                        │   │
-        │  │ • Skills Depth & Relevance (25%)                │   │
-        │  │ • Career Quality & Trajectory (20%)             │   │
-        │  │ • Behavioral Signals (15%)                      │   │
-        │  │ • Cultural Alignment (10%)                      │   │
-        │  └─────────────────────────────────────────────────┘   │
+        │  ┌─────────────────────────────────────────────────┐    │
+        │  │ • Role & Title Fit (30%)                        │    │
+        │  │ • Skills Depth & Relevance (25%)                │    │
+        │  │ • Career Quality & Trajectory (20%)             │    │
+        │  │ • Behavioral Signals (15%)                      │    │
+        │  │ • Cultural Alignment (10%)                      │    │
+        │  └─────────────────────────────────────────────────┘    │
         └─────────────────────────────────────────────────────────┘
                                       │
                                       ▼
