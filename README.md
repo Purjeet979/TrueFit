@@ -1,6 +1,6 @@
 # 🚀 TrueFit — Intelligent Candidate Discovery & Ranking
 
-TrueFit is an advanced AI-powered candidate ranking system built for the **India Runs Data and AI Challenge**. It processes **100,000 candidates** against a specific Job Description using a **7-stage multi-signal pipeline** that goes far beyond keyword matching — understanding title-career coherence, detecting dataset traps and honeypots, weighing behavioral signals, and producing explainable per-candidate reasoning.
+TrueFit is an advanced AI-powered candidate ranking system built for the **India Runs Data and AI Challenge**. It processes **100,000 candidates** against a specific Job Description using a **7-stage intelligent filtering and scoring pipeline**.
 
 ## 🏆 Key Innovations
 
@@ -13,20 +13,76 @@ The JD explicitly warns: *"The right answer is not 'find candidates whose skills
 - Understands **pre-LLM ML experience** (pre-2022 work matters more)
 
 ### Architecture Overview
+
 ```
-candidates.jsonl (100K)
-    ├── Stage 1: Load & Parse
-    ├── Stage 2: Hard Pre-Filters (experience, technical relevance)
-    ├── Stage 3: Honeypot Detection (10 independent signals)
-    ├── Stage 4: TF-IDF Semantic Similarity (JD-vocabulary-only)
-    ├── Stage 5: 5-Dimensional Multi-Signal Scoring
-    │     ├── Role & Title Fit (30%)
-    │     ├── Skills Depth & Relevance (25%)
-    │     ├── Career Quality & Trajectory (20%)
-    │     ├── Behavioral Signals (15%)
-    │     └── Cultural Alignment (10%)
-    ├── Stage 6: Ranking + Per-Candidate Reasoning
-    └── Stage 7: CSV Output (Top 100)
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    🎯 TrueFit Pipeline Architecture                         │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+                            INPUT: candidates.jsonl (100K)
+                                      │
+                                      ▼
+                    ┌─────────────────────────────┐
+                    │  Stage 1: Load & Parse      │
+                    │  • JSONL Parsing            │
+                    │  • Text Extraction          │
+                    │  • Field Validation         │
+                    └─────────────────────────────┘
+                                      │
+                                      ▼
+                    ┌─────────────────────────────┐
+                    │  Stage 2: Hard Pre-Filters  │
+                    │  • Min Experience Check     │
+                    │  • Technical Relevance      │
+                    │  • Location Filter          │
+                    └─────────────────────────────┘
+                                      │
+                                      ▼
+                    ┌─────────────────────────────┐
+                    │  Stage 3: Honeypot Detection│
+                    │  • 10 Independent Signals  │
+                    │  • Keyword Stuffer Detection│
+                    │  • Impossible Profiles      │
+                    └─────────────────────────────┘
+                                      │
+                                      ▼
+                    ┌─────────────────────────────┐
+                    │  Stage 4: TF-IDF Similarity │
+                    │  • JD Vocabulary Extraction │
+                    │  • Cosine Similarity        │
+                    │  • Semantic Matching        │
+                    └─────────────────────────────┘
+                                      │
+                                      ▼
+        ┌─────────────────────────────────────────────────────────┐
+        │  Stage 5: 5-Dimensional Multi-Signal Scoring            │
+        │  ┌─────────────────────────────────────────────────┐   │
+        │  │ • Role & Title Fit (30%)                        │   │
+        │  │ • Skills Depth & Relevance (25%)                │   │
+        │  │ • Career Quality & Trajectory (20%)             │   │
+        │  │ • Behavioral Signals (15%)                      │   │
+        │  │ • Cultural Alignment (10%)                      │   │
+        │  └─────────────────────────────────────────────────┘   │
+        └─────────────────────────────────────────────────────────┘
+                                      │
+                                      ▼
+                    ┌─────────────────────────────┐
+                    │  Stage 6: Ranking           │
+                    │  • Sort by Final Score      │
+                    │  • Per-Candidate Reasoning  │
+                    │  • Explanation Generation   │
+                    └─────────────────────────────┘
+                                      │
+                                      ▼
+                    ┌─────────────────────────────┐
+                    │  Stage 7: CSV Output        │
+                    │  • Top 100 Candidates       │
+                    │  • Ranks 1-100              │
+                    │  • Final Scores             │
+                    └─────────────────────────────┘
+                                      │
+                                      ▼
+                         OUTPUT: HaXker.csv (Top 100)
 ```
 
 ## ⚡ Quick Start — Reproduce the Submission
@@ -61,17 +117,14 @@ python validate_submission.py ./HaXker.csv --candidates ./candidates.jsonl
 
 ## 🛡️ Trap Detection
 
-- **Honeypot Detection:** 10 independent signals including expert-with-zero-duration, impossible tenure, impossible progression, experience inflation, and verification-completeness mismatch. Blocked exactly 55 honeypots.
+- **Honeypot Detection:** 10 independent signals including expert-with-zero-duration, impossible tenure, impossible progression, experience inflation, and verification-completeness mismatch. Blocks ~80 honeypots.
 - **Keyword Stuffer Detection:** Non-technical title + AI-heavy skills + non-technical career descriptions.
 - **Recent-only AI Penalty:** Penalizes candidates whose AI experience only started post-2023 without pre-LLM fundamentals.
 - **Consulting Firm Penalty:** Entire career at consulting firms triggers a massive score reduction.
 - **Title-Career Coherence:** Skills are validated against actual career descriptions, detecting hidden gems (people who built recommendation systems but lack buzzwords).
 
-
-
 ## 📁 Project Structure
 
-```
 ```
 ├── rank.py                  # Main entry point for submission CSV generation
 ├── app.py                   # Streamlit Sandbox Demo application
