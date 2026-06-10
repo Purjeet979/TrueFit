@@ -52,11 +52,10 @@ compute:
 # ============================================================================
 ai_tools_used:
   - "Claude"
-  - "ChatGPT/Codex"
   - "Gemini"
 
 ai_usage_summary: |
-  Used Claude, ChatGPT/Codex, and Gemini for architecture discussion, code review, and debugging.
+  Used Claude and Gemini for architecture discussion, code review, and debugging.
   No candidate data was fed to any LLM. All ranking logic is deterministic
   and rule-based. The scoring engine uses Scikit-Learn for TF-IDF 
   and multi-signal heuristic scoring — zero LLM API calls.
