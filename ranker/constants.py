@@ -138,14 +138,20 @@ SKILL_ALIASES = {
     "langchain": [],
     "llamaindex": ["llama index"],
     "transformers": ["huggingface transformers", "hf transformers"],
-    "sentence-transformers": ["sentence transformers", "sbert"],
+    "sentence-transformers": [
+        "sentence transformers", "sbert",
+        "bge", "bge-m3", "bge-large", "bge-base",         # Beijing Academy of AI
+        "e5", "e5-large", "e5-base", "multilingual-e5",   # Microsoft E5
+        "ada-002", "text-embedding-ada", "openai embeddings",  # OpenAI
+        "instructor", "instructor-xl",                    # HKUNLP Instructor
+    ],
     "bert": [],
     "gpt": [],
     "rag": ["retrieval augmented generation"],
     "fine-tuning": ["fine tuning", "finetuning"],
     "lora": ["qlora", "peft"],
     "xgboost": ["xgb"],
-    "vector database": ["vector db", "vector store"],
+    "vector database": ["vector db", "vector store", "vector index"],
     "embeddings": ["embedding", "text embeddings"],
     "ranking": ["learning to rank", "ltr"],
     "information retrieval": ["ir"],
@@ -167,7 +173,22 @@ SKILL_ALIASES = {
     "feature engineering": [],
     "statistical modeling": ["statistics"],
     "a/b testing": ["ab testing", "experimentation"],
-    "ndcg": [],
+    "ndcg": ["normalized discounted cumulative gain"],
+    "mrr": ["mean reciprocal rank"],
+    "map": ["mean average precision"],
+    "hybrid search": [
+        "hybrid retrieval", "dense-sparse retrieval", "sparse-dense",
+        "bm25+embeddings", "reciprocal rank fusion", "rrf",
+        "dense retrieval", "sparse retrieval",
+    ],
+    "inference optimization": [
+        "model optimization", "quantization", "onnx", "tensorrt",
+        "trt", "int8", "fp16", "model compression", "distillation",
+    ],
+    "distributed systems": [
+        "distributed computing", "large scale systems", "horizontal scaling",
+        "sharding", "distributed training", "distributed inference",
+    ],
     "computer vision": ["cv"],
     "gans": ["generative adversarial"],
     "data pipelines": ["etl", "data pipeline"],
@@ -185,14 +206,18 @@ JD_REQUIRED_SKILLS = [
     "elasticsearch", "opensearch",
     "ranking",
     "information retrieval",
-    "ndcg", "a/b testing",
+    "ndcg", "mrr", "map",   # All three eval metrics explicitly in JD
+    "a/b testing",
+    "hybrid search",           # JD Week 4-8 mandate
 ]
 
 JD_PREFERRED_SKILLS = [
     "lora", "fine-tuning", "peft",
     "xgboost", "learning to rank",
-    "distributed systems",
+    "distributed systems",          # JD preferred
+    "inference optimization",       # JD preferred (large-scale inference)
     "recommendation systems",
+    "mlops",                        # Production deployment infra
 ]
 
 # Core AI/ML skills that indicate genuine technical depth

@@ -64,7 +64,7 @@ ai_usage_summary: |
 # Approach summary
 # ============================================================================
 methodology_summary: |
-  7-stage pipeline processing 100K candidates in ~120s on CPU. Stage 1-2: load
+  7-stage pipeline processing 100K candidates in 31.6s in the latest full local CPU run. Stage 1-2: load
   and hard-filter (experience, technical relevance). Stage 3: honeypot detection
   using 10 independent signals (expert-with-zero-duration, title-skill mismatch,
   impossible tenure, impossible progression, etc.). Stage 4: TF-IDF cosine similarity using JD-vocabulary-

@@ -56,6 +56,114 @@ def _is_non_technical_profile(candidate):
     return any(nt in title_text for nt in NON_TECHNICAL_TITLES)
 
 
+def _is_cv_speech_specialist(candidate):
+    """
+    JD explicitly disqualifies: 'people whose primary expertise is computer
+    vision, speech, or robotics without significant NLP/IR exposure.'
+    """
+    career_text = _career_text(candidate)
+    skills = {s.get("name", "").lower() for s in candidate.get("skills", [])}
+
+    cv_speech_terms = [
+        "computer vision", "image classification", "object detection",
+        "yolo", "opencv", "image segmentation", "speech recognition",
+        "asr", "text to speech", "tts", "robotics", "ros ", "slam",
+        "3d vision", "lidar", "point cloud", "pose estimation",
+        "action recognition", "video understanding",
+    ]
+    nlp_ir_terms = [
+        "nlp", "natural language", "text classification", "retrieval",
+        "ranking", "embedding", "transformer", "bert", "language model",
+        "information retrieval", "search", "recommendation", "rag",
+    ]
+
+    cv_count = sum(1 for t in cv_speech_terms if t in career_text)
+    nlp_count = sum(1 for t in nlp_ir_terms if t in career_text)
+
+    # Join all skill names once for O(n) check instead of O(n*m) nested loop
+    skills_text = " ".join(skills)
+    cv_skill_count = sum(1 for t in cv_speech_terms if t in skills_text)
+
+    # CV/speech specialist = heavy CV signals but minimal NLP/IR
+    return (cv_count + cv_skill_count) >= 3 and nlp_count <= 1
+
+
+def _is_pure_researcher(candidate):
+    """
+    JD explicitly disqualifies: 'pure research environments (academic labs,
+    research-only roles) without any production deployment.'
+    """
+    career = candidate.get("career_history", [])
+    if not career:
+        return False
+
+    research_title_terms = [
+        "research", "researcher", "scientist", "phd", "postdoc",
+        "fellow", "lab", "professor", "lecturer", "academic",
+    ]
+    production_terms = [
+        "production", "deployed", "shipped", "users", "scale",
+        "api", "service", "pipeline", "realtime", "real-time",
+        "inference", "serving", "microservice", "system",
+    ]
+
+    titles = [j.get("title", "").lower() for j in career]
+    institutions = [j.get("company", "").lower() for j in career]
+    descriptions = " ".join(j.get("description", "").lower() for j in career)
+
+    research_title_count = sum(
+        1 for t in titles if any(r in t for r in research_title_terms)
+    )
+    academic_company_count = sum(
+        1 for inst in institutions
+        if any(kw in inst for kw in ["university", "iit", "iim", "iisc",
+                                     "mit", "stanford", "research lab",
+                                     "institute", "college"])
+    )
+    has_production = any(p in descriptions for p in production_terms)
+
+    total = len(career)
+    return (
+        (research_title_count >= total * 0.7 or academic_company_count >= total * 0.7)
+        and not has_production
+    )
+
+
+def _has_recent_coding_evidence(candidate, baseline_date):
+    """
+    JD disqualifies: 'senior engineer who hasn't written production code
+    in the last 18 months because they moved into architecture roles.'
+    """
+    career = candidate.get("career_history", [])
+    if not career:
+        return True  # Benefit of doubt
+
+    current_job = career[0]
+    end_date = current_job.get("end_date", "")
+    cutoff = (baseline_date - timedelta(days=18 * 30)).strftime("%Y-%m-%d")
+
+    if end_date and end_date < cutoff:
+        return True  # Left long ago — not penalised
+
+    title = current_job.get("title", "").lower()
+    desc = current_job.get("description", "").lower()
+
+    arch_signals = [
+        "architecture", "solution architect", "tech lead",
+        "head of engineering", "vp engineering", "director of engineering",
+        "principal", "cto",
+    ]
+    coding_signals = [
+        "code", "implement", "built", "develop", "python",
+        "ship", "deploy", "debug", "pull request", "commit", "refactor",
+    ]
+
+    in_arch_role = any(a in title for a in arch_signals)
+    has_coding_evidence = any(c in desc for c in coding_signals)
+
+    return not (in_arch_role and not has_coding_evidence)
+
+
 def _technical_career_depth(candidate):
     career_text = _career_text(candidate)
     indicators = [
@@ -85,7 +193,10 @@ def _applied_ml_system_evidence(candidate):
         ],
         "retrieval": [
             "retrieval system", "information retrieval", "semantic search",
-            "hybrid search", "vector search", "nearest neighbor",
+            "hybrid search", "hybrid retrieval", "vector search",
+            "nearest neighbor", "ann search", "approximate nearest",
+            "reciprocal rank fusion", "rrf", "dense retrieval",
+            "sparse retrieval", "bm25",
         ],
         "production_ml": [
             "model serving", "model deployment", "inference", "ml pipeline",
@@ -184,6 +295,7 @@ def score_role_fit(candidate):
 
     # --- Seniority fit (0-20 points) ---
     # JD says 5-9 years sweet spot, "ideal" is 6-8 years
+    # JD note: "founding team wants growers" — heavily overqualified is a culture risk
     if 6 <= years <= 8:
         seniority_score = 20  # JD ideal band
     elif 5 <= years < 6 or 8 < years <= 9:
@@ -192,12 +304,14 @@ def score_role_fit(candidate):
         seniority_score = 14  # Slightly over, still viable
     elif 4 <= years < 5:
         seniority_score = 12  # JD says "4 years with strong signals is fine"
-    elif years > 12:
-        seniority_score = 10  # Significantly overqualified
+    elif 12 < years <= 15:
+        seniority_score = 7   # Overqualified — founding team culture risk
+    elif years > 15:
+        seniority_score = 3   # Significantly overqualified (Series A != big-co comfort)
     elif 3 <= years < 4:
         seniority_score = 6
     else:
-        seniority_score = max(0, years * 2)
+        seniority_score = max(0, int(years * 2))
 
     # Bonus for senior/lead in title
     if any(kw in title_combined for kw in ["senior", "sr.", "lead", "staff", "principal"]):
@@ -680,13 +794,18 @@ def score_cultural(candidate):
     salary = sig.get("expected_salary_range_inr_lpa", {})
     if salary:
         max_salary = salary.get("max", 0)
-        # Reasonable range for Senior AI Engineer in India
-        if 15 <= max_salary <= 60:
-            score += 15
+        # Realistic range for Senior AI Engineer at a Series A in India
+        # JD: Pune/Noida, 5-9yr, founding team — typical band 25-55 LPA
+        if 25 <= max_salary <= 55:
+            score += 15  # Perfect Series A range
+        elif 15 <= max_salary < 25:
+            score += 8   # Low but acceptable
+        elif 55 < max_salary <= 80:
+            score += 5   # Expensive but possible for Series A
+        elif max_salary > 80:
+            score += 2   # Likely too expensive
         elif max_salary < 15:
-            score += 10  # Might be underpaid = easier to hire
-        elif max_salary > 60:
-            score += 5  # Might be too expensive for Series A
+            score += 2   # Suspiciously low — possibly wrong/missing data
 
     return clamp(score)
 
@@ -770,6 +889,25 @@ def compute_composite_score(candidate, tfidf_similarity=0.0, config=None):
     if _is_non_technical_profile(candidate) and technical_depth <= 1:
         composite *= 0.55
         career_flags["role_career_mismatch"] = True
+
+    # GAP 4 — CV/Speech/Robotics specialist without NLP/IR exposure
+    # JD: "We respect your work but you'd be re-learning fundamentals here."
+    if _is_cv_speech_specialist(candidate):
+        composite *= 0.72
+        career_flags["cv_speech_specialist_no_nlp"] = True
+
+    # GAP 5 — Pure academic/research role without production deployment
+    # JD: "We will not move forward. We've tried it twice."
+    if _is_pure_researcher(candidate):
+        composite *= 0.60
+        career_flags["pure_research_no_production"] = True
+
+    # GAP 8 — No recent coding evidence in last 18 months
+    # JD: "Senior engineer who hasn't written production code in 18 months
+    #      because they moved into architecture roles — probably not."
+    if not _has_recent_coding_evidence(candidate, config.baseline_date):
+        composite *= 0.78
+        career_flags["no_recent_coding_evidence"] = True
 
     # Apply consulting firm entire-career penalty
     if career_flags.get("entire_career_consulting"):

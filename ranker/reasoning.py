@@ -14,6 +14,24 @@ from .constants import (
 )
 from .skill_matcher import normalize_skill
 
+# Dynamic career-evidence descriptions — used instead of a hardcoded string
+# so that each hidden_gem_builder candidate gets a unique reasoning sentence.
+_CAREER_EVIDENCE_DESCRIPTIONS = {
+    "recommendation": "built recommendation/personalization systems in production",
+    "search_ranking":  "built search ranking & relevance systems at scale",
+    "retrieval":       "built semantic/vector retrieval systems in production",
+    "production_ml":   "deployed end-to-end ML pipelines to production",
+    "scale":           "shipped ML systems serving millions of users",
+}
+
+
+def _evidence_desc(families):
+    """Pick the best career-evidence description from the detected families."""
+    for fam in (families or []):
+        if fam in _CAREER_EVIDENCE_DESCRIPTIONS:
+            return _CAREER_EVIDENCE_DESCRIPTIONS[fam]
+    return "built production ML systems"
+
 
 def generate_reasoning(candidate, result, rank):
     """
@@ -64,11 +82,13 @@ def generate_reasoning(candidate, result, rank):
         best_dim = max(dims, key=dims.get) if dims else "skills_depth"
         best_score = dims.get(best_dim, 0)
 
-        # Primary strength statement
+        # Primary strength statement — dynamic, not templated
         if flags.get("hidden_gem_builder"):
+            evidence_families = flags.get("applied_ml_system_evidence", [])
+            evidence_str = _evidence_desc(evidence_families)
             parts.append(
                 f"{title} with {years:.1f}yr exp at {company}; "
-                f"career explicitly shows they built recommendation/ranking systems in production"
+                f"career shows they {evidence_str}"
             )
         elif len(req_matched) >= 3:
             matched_str = ", ".join(req_matched[:4])
@@ -76,6 +96,7 @@ def generate_reasoning(candidate, result, rank):
                 "embeddings", "sentence-transformers", "vector database",
                 "faiss", "pinecone", "weaviate", "qdrant", "milvus",
                 "elasticsearch", "opensearch", "information retrieval",
+                "hybrid search",
             }
             if any(normalize_skill(s) in retrieval_terms for s in req_matched):
                 match_label = "embeddings/retrieval/search requirements"
@@ -165,6 +186,12 @@ def generate_reasoning(candidate, result, rank):
             concerns.append("weak availability signals")
         if flags.get("role_career_mismatch"):
             concerns.append("title/career does not support AI skill claims")
+        if flags.get("cv_speech_specialist_no_nlp"):
+            concerns.append("primarily CV/speech background — NLP/IR re-learning required")
+        if flags.get("pure_research_no_production"):
+            concerns.append("research-focused career without production deployment evidence")
+        if flags.get("no_recent_coding_evidence"):
+            concerns.append("recent role appears non-coding (architecture/management)")
         if flags.get("below_senior_experience_band"):
             concerns.append("below the JD's 5-9 year seniority band")
         if req_missing:
@@ -191,6 +218,12 @@ def generate_reasoning(candidate, result, rank):
             issues.append("skill-profile mismatch detected")
         if flags.get("role_career_mismatch"):
             issues.append("non-technical career despite AI skill claims")
+        if flags.get("cv_speech_specialist_no_nlp"):
+            issues.append("CV/speech specialist — limited NLP/IR exposure")
+        if flags.get("pure_research_no_production"):
+            issues.append("research-only career — no production deployment evidence")
+        if flags.get("no_recent_coding_evidence"):
+            issues.append("no recent coding evidence — moved to architecture/management")
         if flags.get("availability_risk"):
             issues.append("stale or low-response profile")
         if len(req_matched) <= 1:

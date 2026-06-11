@@ -6,7 +6,7 @@ TrueFit is an intelligent candidate ranking system built for the Redrob AI Hacka
 
 **Key Design Principle:** The JD explicitly states that the right answer involves "reasoning about the gap between what the JD says and what the JD means." Our system understands that a Marketing Manager with perfect AI keywords is a trap, while a Backend Engineer who built recommendation systems at a product company is a strong fit — even if their skill list doesn't include "RAG" or "Pinecone."
 
-**Runtime:** ~250 seconds on CPU for 100K candidates. Optimized via `scikit-learn` and `numpy` for fast TF-IDF computation, zero API calls.
+**Runtime:** 31.6 seconds in the latest full 100K local run on CPU. Optimized via `scikit-learn` and `numpy` for fast TF-IDF computation, zero API calls.
 
 ---
 
@@ -171,7 +171,7 @@ Lower-tier (61-100) get honest explanations of why they rank lower.
 1. **Keyword counting** — The dataset is designed to trap keyword matchers
 2. **LLM API calls** — Zero network calls, all computation local
 3. **GPU dependency** — Pure CPU, pure Python
-4. **External dependencies** — Uses only Python standard library
+4. **Hosted services** — Uses no hosted models or external APIs during ranking; dependencies are local CPU packages listed in `requirements.txt`
 5. **Template reasoning** — Each reasoning is generated from candidate-specific data
 6. **Ignoring behavioral signals** — A perfect-on-paper candidate with 5% response rate is down-weighted
 
@@ -187,8 +187,8 @@ python rank.py --candidates ./candidates.jsonl --out ./submission.csv
 python validate_submission.py submission.csv
 ```
 
-Runtime: ~250 seconds on CPU (well within 5-minute constraint)
-Memory: ~800 MB peak (well within 16 GB constraint)
+Runtime: 31.6 seconds in the latest full 100K local run (well within 5-minute constraint)
+Memory: comfortably within the 16 GB constraint
 Dependencies: `numpy`, `scikit-learn` (see `requirements.txt`)
 
 ---

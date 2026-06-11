@@ -98,11 +98,11 @@ python validate_submission.py ./HaXker.csv --candidates ./candidates.jsonl
 ```
 
 **Constraints met:**
-- ✅ Runtime: ~250 seconds (limit: 300s)
-- ✅ Memory: ~800 MB peak (limit: 16 GB)
+- ✅ Runtime: 31.6 seconds in the latest full 100K local run (limit: 300s)
+- ✅ Memory: comfortably below the 16 GB limit
 - ✅ CPU only, no GPU
 - ✅ Uses NumPy & Scikit-Learn for highly optimized TF-IDF
-- ✅ No network/API calls
+- ✅ No network/API calls during ranking
 - ✅ Output validation checks exact header, 100 rows, ranks 1-100, unique IDs, and monotonic scores
 
 ## 🧠 Scoring Dimensions

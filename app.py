@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as components
 import pandas as pd
 import time
 import json
@@ -19,18 +20,295 @@ logger = setup_logger(__name__)
 
 st.set_page_config(
     page_title="TrueFit Ranker Sandbox",
-    page_icon="🎯",
+    page_icon="💠",
     layout="wide"
 )
 
-st.title("🎯 TrueFit Intelligent Ranker - Sandbox Demo")
+premium_css = """
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&family=Inter:wght@400;600&display=swap');
+
+/* Animated Background (Deep Cyberpunk Dark) */
+.stApp {
+    background: linear-gradient(-45deg, #020617, #0f172a, #1e1b4b, #09090b, #000000);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
+    font-family: 'Inter', sans-serif;
+}
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+
+
+/* Glowing Typography */
+h1 {
+    font-family: 'Outfit', sans-serif !important;
+    background: -webkit-linear-gradient(45deg, #fbcfe8, #f43f5e, #d946ef);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: glow 3s ease-in-out infinite alternate;
+}
+@keyframes glow {
+    from { text-shadow: 0 0 10px rgba(244, 63, 94, 0.4); }
+    to { text-shadow: 0 0 25px rgba(217, 70, 239, 0.8); }
+}
+
+/* Glassmorphism for Uploader and Metrics */
+div[data-testid="stFileUploader"] > section, div[data-testid="metric-container"], div[data-testid="stAlert"] {
+    background: rgba(255, 255, 255, 0.1) !important;
+    backdrop-filter: blur(16px) !important;
+    border-radius: 16px !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4) !important;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+}
+
+div[data-testid="stFileUploader"] > section:hover, div[data-testid="metric-container"]:hover {
+    transform: translateY(-8px) scale(1.02) !important;
+    box-shadow: 0 15px 45px 0 rgba(244, 63, 94, 0.4) !important;
+    border: 1px solid rgba(244, 63, 94, 0.6) !important;
+}
+
+/* Specific text overrides for Uploader */
+.stFileUploader small {
+    color: #fbcfe8 !important;
+}
+
+/* Fix white headers and buttons */
+header[data-testid="stHeader"] {
+    background: transparent !important;
+}
+button[data-testid="stBaseButton-secondary"] {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    color: #fdf2f8 !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    backdrop-filter: blur(8px) !important;
+}
+button[data-testid="stBaseButton-secondary"]:hover {
+    background-color: rgba(255, 255, 255, 0.15) !important;
+    border-color: #f43f5e !important;
+    color: #f43f5e !important;
+}
+
+/* Metric text styling */
+div[data-testid="metric-container"] {
+    padding: 1.5rem !important;
+    text-align: center;
+}
+div[data-testid="stMetricValue"] > div {
+    color: #fda4af !important;
+    font-size: 3rem !important;
+    font-family: 'Outfit', sans-serif !important;
+    font-weight: 600 !important;
+    text-shadow: 0 0 10px rgba(253, 164, 175, 0.5);
+}
+
+/* Floating Ambient Particles (Pink/Red/Purple) */
+.stApp::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    pointer-events: none;
+    z-index: 0;
+    background-image: 
+        radial-gradient(circle at 20% 40%, rgba(244, 63, 94, 0.2) 0%, transparent 40%),
+        radial-gradient(circle at 80% 20%, rgba(217, 70, 239, 0.2) 0%, transparent 40%),
+        radial-gradient(circle at 60% 80%, rgba(225, 29, 72, 0.2) 0%, transparent 40%),
+        radial-gradient(circle at 10% 90%, rgba(192, 38, 211, 0.2) 0%, transparent 40%);
+    animation: float1 15s infinite ease-in-out alternate;
+}
+@keyframes float1 {
+    0% { transform: translateY(0px) scale(1); }
+    100% { transform: translateY(-40px) scale(1.2); }
+}
+
+/* Dataframe styling */
+.stDataFrame {
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 8px 32px 0 rgba(0,0,0,0.3);
+}
+.stMarkdown, div[data-testid="stVerticalBlock"], .stDataFrame {
+    z-index: 1;
+    position: relative;
+}
+
+</style>
+"""
+
+three_js_code = """
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { margin: 0; overflow: hidden; background: transparent; }
+        canvas { display: block; width: 100vw; height: 100vh; }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+    <script>
+        // Break out of Streamlit's iframe restrictions to act as a full-screen background
+        const iframe = window.frameElement;
+        if (iframe) {
+            iframe.style.position = 'fixed';
+            iframe.style.top = '0';
+            iframe.style.left = '0';
+            iframe.style.width = '100vw';
+            iframe.style.height = '100vh';
+            iframe.style.zIndex = '0';
+            iframe.style.border = 'none';
+            iframe.style.pointerEvents = 'none'; // allow clicks to pass through to Streamlit UI
+            
+            let parentNode = iframe.parentElement;
+            while(parentNode && parentNode.tagName !== 'BODY') {
+                parentNode.style.position = 'static'; 
+                parentNode.style.zIndex = '0';
+                parentNode = parentNode.parentElement;
+            }
+        }
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: false });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        document.body.appendChild(renderer.domElement);
+
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        scene.add(ambientLight);
+        const pointLight = new THREE.PointLight(0xf43f5e, 2);
+        pointLight.position.set(5, 5, 5);
+        scene.add(pointLight);
+        const pointLight2 = new THREE.PointLight(0xd946ef, 2);
+        pointLight2.position.set(-5, -5, 5);
+        scene.add(pointLight2);
+
+        const objects = [];
+        const techStack = [
+            "Purjeet", "Team HaXker", "Python", "Scikit-Learn", 
+            "TF-IDF", "Streamlit", "Pandas", "NumPy", 
+            "Regex", "Ranking Engine", "Deterministic AI", "JSONL"
+        ];
+
+        function createTextSprite(message) {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.width = 512;
+            canvas.height = 128;
+            context.font = "Bold 50px 'Outfit', sans-serif";
+            context.fillStyle = "rgba(244, 63, 94, 0.5)"; // glowing pink
+            context.textAlign = "center";
+            context.textBaseline = "middle";
+            context.fillText(message, 256, 64);
+            
+            const texture = new THREE.CanvasTexture(canvas);
+            const spriteMaterial = new THREE.SpriteMaterial({ map: texture, transparent: true });
+            const sprite = new THREE.Sprite(spriteMaterial);
+            return sprite;
+        }
+
+        // Create a field of floating tech stack words
+        for (let i = 0; i < 40; i++) {
+            const word = techStack[i % techStack.length];
+            const sprite = createTextSprite(word);
+            
+            sprite.position.set(
+                (Math.random() - 0.5) * 40,
+                (Math.random() - 0.5) * 30,
+                (Math.random() - 0.5) * 15 - 10
+            );
+            const scale = Math.random() * 1 + 0.5;
+            sprite.scale.set(5 * scale, 1.25 * scale, 1);
+            
+            sprite.userData = {
+                floatSpeed: Math.random() * 0.01 + 0.005,
+                floatOffset: Math.random() * Math.PI * 2,
+                driftX: (Math.random() - 0.5) * 0.02
+            };
+            
+            scene.add(sprite);
+            objects.push(sprite);
+        }
+
+        camera.position.z = 5;
+
+        // Mouse Parallax Logic
+        let mouseX = 0;
+        let mouseY = 0;
+        let targetX = 0;
+        let targetY = 0;
+        const windowHalfX = window.innerWidth / 2;
+        const windowHalfY = window.innerHeight / 2;
+
+        try {
+            window.parent.document.addEventListener('mousemove', (event) => {
+                mouseX = (event.clientX - windowHalfX) * 0.002;
+                mouseY = (event.clientY - windowHalfY) * 0.002;
+            });
+        } catch(e) { console.log("Cross-origin mouse tracking restricted"); }
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        const clock = new THREE.Clock();
+        function animate() {
+            requestAnimationFrame(animate);
+            const time = clock.getElapsedTime();
+
+            targetX = mouseX * 2;
+            targetY = mouseY * 2;
+
+            // smooth camera movement
+            camera.position.x += (targetX - camera.position.x) * 0.05;
+            camera.position.y += (-targetY - camera.position.y) * 0.05;
+            camera.lookAt(scene.position);
+
+            objects.forEach(obj => {
+                obj.position.x += obj.userData.driftX;
+                obj.position.y += Math.sin(time + obj.userData.floatOffset) * obj.userData.floatSpeed;
+                
+                // Infinite wrap around logic
+                if (obj.position.x > 25) obj.position.x = -25;
+                if (obj.position.x < -25) obj.position.x = 25;
+            });
+
+            renderer.render(scene, camera);
+        }
+        animate();
+    </script>
+</body>
+</html>
+"""
+
+st.markdown(premium_css, unsafe_allow_html=True)
+components.html(three_js_code, height=100)
+
 st.markdown("""
-This is a live demo of the TrueFit candidate ranking system built for the Redrob AI Challenge.
-It runs the exact same **7-stage pipeline** used to generate our `submission.csv`, including:
-- Honeypot & Keyword Stuffer Detection
-- TF-IDF Semantic Matching
-- 5-Dimensional Composite Scoring (Role Fit, Skills Depth, Career Quality, Behavioral, Cultural)
-- Rule-based Reasoning Generation
+<div style="display: flex; align-items: center; gap: 20px; margin-top: 10px; margin-bottom: 20px;">
+    <svg width="60" height="60" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 0 15px rgba(244,63,94,0.6));">
+        <path d="M50 5 L90 25 L90 75 L50 95 L10 75 L10 25 Z" fill="url(#grad)" stroke="#fbcfe8" stroke-width="2"/>
+        <path d="M50 5 L50 45 L90 25 M50 45 L10 25 M50 45 L50 95" stroke="#fbcfe8" stroke-width="2"/>
+        <circle cx="50" cy="45" r="5" fill="#fff" />
+        <defs>
+            <linearGradient id="grad" x1="0" y1="0" x2="100" y2="100">
+                <stop offset="0%" stop-color="#f43f5e" stop-opacity="0.9"/>
+                <stop offset="100%" stop-color="#d946ef" stop-opacity="0.3"/>
+            </linearGradient>
+        </defs>
+    </svg>
+    <h1 style="margin: 0; padding: 0; font-family: 'Outfit', sans-serif;">TrueFit Intelligent Ranker</h1>
+</div>
+""", unsafe_allow_html=True)
+st.markdown("""
+Welcome to the **Premium Sandbox Experience**.
+This pipeline runs the exact **7-stage intelligent ranking system** with live honeypot detection, TF-IDF semantic matching, and 5-dimensional rule-based scoring.
 """)
 
 # Load a sample of candidates (or upload)
@@ -118,13 +396,10 @@ def process_candidates(candidates_data):
         candidate_id = get_candidate_id(cand)
         
         final_output.append({
-            "Rank": rank,
-            "Candidate ID": candidate_id,
-            "Name": cand.get("profile", {}).get("name"),
-            "Title": cand.get("profile", {}).get("current_title"),
-            "Experience (Yrs)": cand.get("profile", {}).get("years_of_experience"),
-            "Score": f"{res['score']:.4f}",
-            "Reasoning": reasoning
+            "candidate_id": candidate_id,
+            "rank": rank,
+            "score": f"{res['score']:.4f}",
+            "reasoning": reasoning
         })
         
     end_time = time.time()
@@ -155,4 +430,4 @@ else:
     st.info("Please upload a subset of `candidates.jsonl` (e.g. 500 lines) to see the pipeline in action. (Due to Streamlit memory limits, do not upload the full 500MB file).")
 
 st.markdown("---")
-st.markdown("**Built for Redrob AI Challenge** | Engine: Pure Python + Scikit-Learn | Deterministic Rule-based Scoring")
+st.markdown("**Built for Redrob AI Challenge by Purjeet (Team HaXker)** | Engine: Pure Python + Scikit-Learn | Deterministic Rule-based Scoring")

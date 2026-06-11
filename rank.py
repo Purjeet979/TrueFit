@@ -196,15 +196,26 @@ def main():
     logger.info(f"TF-IDF computed in {t4_elapsed:.1f}s (top {len(tfidf_results)} candidates)")
 
     # ── Stage 5: Multi-signal scoring ──
+    # OPTIMIZATION: Only full-score the TF-IDF shortlisted candidates (~2000)
+    # instead of all 92K.  Candidates with tfidf=0.0 have no realistic chance
+    # of reaching the top-100, so scoring them is wasted CPU.
     logger.info("[Stage 5/7] Scoring candidates (multi-signal)...")
     t5_start = time.time()
 
+    # Build the shortlist: candidates that TF-IDF selected
+    shortlist_indices = set(sim_map.keys())
+    shortlisted = [clean_candidates[i] for i in sorted(shortlist_indices)]
+    # Re-map sim_map to sequential indices in the shortlist
+    shortlist_sim = {}
+    for new_idx, orig_idx in enumerate(sorted(shortlist_indices)):
+        shortlist_sim[new_idx] = sim_map[orig_idx]
+
     scored, errors = score_candidates_with_recovery(
-        clean_candidates, sim_map, config=config, skip_invalid=True
+        shortlisted, shortlist_sim, config=config, skip_invalid=True
     )
 
     t5_elapsed = time.time() - t5_start
-    logger.info(f"Scoring completed in {t5_elapsed:.1f}s ({len(scored):,} scored)")
+    logger.info(f"Scoring completed in {t5_elapsed:.1f}s ({len(scored):,} scored from {len(shortlisted):,} shortlisted)")
 
     # ── Stage 6: Final ranking ──
     logger.info("[Stage 6/7] Ranking and generating reasoning...")
@@ -230,7 +241,7 @@ def main():
         )
         entry["reasoning"] = reasoning
         entry["rank"] = rank_idx + 1
-        entry["score"] = entry["composite"] / max_composite - rank_idx * 1e-7
+        entry["score"] = round(entry["composite"] / max_composite - rank_idx * 1e-8, 6)
 
     logger.info(f"Top {top_k} candidates ranked with reasoning")
 

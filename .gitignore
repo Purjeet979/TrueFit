@@ -26,6 +26,8 @@ node_modules/
 
 # Scripts
 git_push.ps1
+commit_each.py
+check_hallucination.py
 
 # Python
 __pycache__/
