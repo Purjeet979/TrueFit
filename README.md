@@ -85,6 +85,13 @@ The JD explicitly warns: *"The right answer is not 'find candidates whose skills
                          OUTPUT: HaXker.csv (Top 100)
 ```
 
+## 🌐 Live Sandbox Demo
+
+The TrueFit interactive sandbox is live! You can test the 7-stage ranking pipeline directly in your browser with our custom 3D WebGL interface:
+**👉 [TrueFit Intelligent Ranker Sandbox](https://truefit-haxker.streamlit.app/)**
+
+*How it works: Simply open the link and upload your `candidates.jsonl` file (or a smaller subset/sample) via the glowing glassmorphic uploader. The Streamlit app will process the candidates through the exact same engine used for the CSV generation, block honeypots, and display the top ranked candidates along with the engine's reasoning.*
+
 ## ⚡ Quick Start — Reproduce the Submission
 
 As per Section 10.3 of the submission spec, run this exact command to reproduce the CSV:
@@ -151,7 +158,8 @@ python validate_submission.py ./HaXker.csv --candidates ./candidates.jsonl
 
 ## 👨‍💻 Developed By
 
-Built with ❤️ by **Purjeet** for the *India Runs Data and AI Challenge*.
+Built with ❤️ by **Purjeet Shahu** (Team **HaXker**) for the *India Runs Data and AI Challenge*.
 
+*Phone: +91-8390346801*
 *Contact: parthshahu9506@gmail.com*
 *GitHub: [Purjeet979](https://github.com/Purjeet979)*
