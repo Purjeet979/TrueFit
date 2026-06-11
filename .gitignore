@@ -33,3 +33,4 @@ check_hallucination.py
 __pycache__/
 docs.txt
 sample_candidates.json
+*.zip
